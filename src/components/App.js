@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import { Switch, Route, useHistory} from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import * as auth from "../utils/auth";
 import Login from "./Login";
 import Register from "./Register";
@@ -18,7 +18,7 @@ import EditProfilePopup from "./EditProfilePopup";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 function App() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -36,7 +36,7 @@ function App() {
     auth.registerUser(email, password).then(() => {
       setPopupImage(resolve);
       setPopupTitle("Вы успешно зарегистрировались!");
-      history.push("/sign-in");
+      navigate("/sign-in");
     }).catch(() => {
       setPopupImage(reject);
       setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
@@ -48,7 +48,7 @@ function App() {
       localStorage.setItem("jwt", res.token);
       setIsLoggedIn(true);
       setEmailName(email);
-      history.push("/");
+      navigate("/");
     }).catch(() => {
       setPopupImage(reject);
       setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
@@ -72,9 +72,9 @@ function App() {
 
   useEffect(() => {
     if (isLoggedIn === true) {
-      history.push("/");
+      navigate("/");
     }
-  }, [isLoggedIn, history]);
+  }, [isLoggedIn, navigate]);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()]).then(([user, cards]) => {
@@ -93,7 +93,7 @@ function App() {
     });
   }
 
-  function handleCardLike(card) {
+ function handleCardLike(card) {
     const isLiked = card.likes.some(
       (userWhoLiked) => userWhoLiked._id === currentUser._id
     );
@@ -119,7 +119,6 @@ function App() {
       console.error(err);
     });
   }
-
   function handleCardDelete(card) {
     api.removeCard(card).then(() => {
       setCards((items) => items.filter((c) => c._id !== card._id && c));
@@ -187,7 +186,7 @@ function App() {
   function onSignOut() {
     setIsLoggedIn(false);
     setEmailName(null);
-    history.push("/sign-in");
+    navigate("/sign-in");
     localStorage.removeItem("jwt");
   }
 
@@ -195,35 +194,41 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__content">
-        <Header title="Выйти" mail={emailName} onClick={onSignOut} route="" />
-        <Switch>
+        <Routes>
+            <Route path="/sign-in" element={
+              <>
+                <Header title="Регистрация" route="/sign-up"/>
+                <Login onLogin={onLogin} />
+              </>
+            }/>
 
-            <Route path="/sign-in" >
-              <Login onLogin={onLogin} />
-            </Route>
+            <Route path="/sign-up" element={
+              <>
+                <Header title="Войти" route="/sign-in"/>
+                <Register onRegister={onRegister} />
+              </>
+            }/>
 
-            <Route path="/sign-up">
-              <Register onRegister={onRegister} />
-            </Route>
+            <Route exact path="/" element={
+              <>
+                <Header title="Выйти" mail={emailName} onClick={onSignOut} route="" />
+                <ProtectedRoute
+                  component={Main}
+                  isLogged={isLoggedIn}
+                  onEditAvatar={handleEditAvatarClick}
+                  onEditProfile={handleEditProfileClick}
+                  onAddPlace={handleAddPlaceClick}
+                  onCardClick={handleCardClick}
+                  cards={cards}
+                  onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
+                />
+                <Footer />
+              </>
+            }/>
 
-            <ProtectedRoute
-              component={Main}
-              isLogged={isLoggedIn}
-              onEditAvatar={handleEditAvatarClick}
-              onEditProfile={handleEditProfileClick}
-              onAddPlace={handleAddPlaceClick}
-              onCardClick={handleCardClick}
-              cards={cards}
-              onCardLike={handleCardLike}
-              onCardDelete={handleCardDelete}
-              path="/"
-             />
-             
-        </Switch>
-        <Footer/>
-        </div>
-      </div>  
-          
+            <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/sign-in"}/>} />
+          </Routes>
 
           <EditProfilePopup 
             isOpen={isEditProfilePopupOpen} 
@@ -260,7 +265,8 @@ function App() {
             onCloseClick={handlePopupCloseClick}
             onClose={closeAllPopups} 
           />
-       
+        </div>
+      </div>
     </CurrentUserContext.Provider>
   );
 }
