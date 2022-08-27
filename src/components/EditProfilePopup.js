@@ -32,9 +32,9 @@ function EditProfilePopup(props) {
   }, [props.isOpen, currentUser]);
 
   return(
+    <div className="popup__opened" onClick={props.onClose}>
     <PopupWithForm
       isOpen={props.isOpen}
-      onCloseClick={props.onCloseClick}
       onClose={props.onClose}
       name={'edit'}
       form={'profileData'}
@@ -47,6 +47,7 @@ function EditProfilePopup(props) {
       <input className="popup__input" id="profile_description" name="profile_description" type="text" placeholder="О себе" minLength="2" maxLength="200" value={description} onChange={handleDescriptionChange} required/>
       <span className="popup__input-error" id="profile_description-error"/>
     </PopupWithForm>
+    </div>
   )
 }
 

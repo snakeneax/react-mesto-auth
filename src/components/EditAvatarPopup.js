@@ -17,6 +17,7 @@ function EditAvatarPopup(props) {
   }, [props.isOpen]);
 
   return(
+    <div className="popup__opened" onClick={props.onClose}>
     <PopupWithForm 
       isOpen={props.isOpen}
       onCloseClick={props.onCloseClick}
@@ -30,6 +31,7 @@ function EditAvatarPopup(props) {
       <input ref={ref} className="popup__input" id="avatar_link" name="avatar_link" type="url" placeholder="Ссылка на аватар" required/>
       <span className="popup__input-error" id="avatar_link-error"/>
     </PopupWithForm>
+    </div>
   )
 }
 

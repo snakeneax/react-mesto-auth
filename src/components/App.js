@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import * as auth from "../utils/auth";
 import Login from "./Login";
 import Register from "./Register";
@@ -84,6 +84,7 @@ function App() {
       console.error(err);
     });
   }, []);
+  
   function handleUpdateUser(data) {
     api.updateUserInfo(data).then((newUser) => {
       setCurrentUser(newUser);
@@ -155,12 +156,6 @@ function App() {
     setInfoTooltip(true);
   }
 
-  function handlePopupCloseClick(evt) {
-    if (evt.target.classList.contains('popup_opened')) {
-      closeAllPopups();
-    }
-  }
-
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
@@ -227,26 +222,23 @@ function App() {
               </>
             }/>
 
-            <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/sign-in"}/>} />
+           
           </Routes>
 
           <EditProfilePopup 
             isOpen={isEditProfilePopupOpen} 
-            onCloseClick={handlePopupCloseClick} 
             onClose={closeAllPopups} 
             onSubmit={handleUpdateUser}
           />
           
           <AddPlacePopup 
             isOpen={isAddPlacePopupOpen} 
-            onCloseClick={handlePopupCloseClick} 
             onClose={closeAllPopups} 
             onSubmit={handleAddPlaceSubmit}
           />
           
           <EditAvatarPopup 
             isOpen={isEditAvatarPopupOpen} 
-            onCloseClick={handlePopupCloseClick} 
             onClose={closeAllPopups} 
             onSubmit={handleAvatarUpdate}
           />
@@ -254,7 +246,6 @@ function App() {
           <ImagePopup
             card={selectedCard}
             isOpen={isImagePopupOpen} 
-            onCloseClick={handlePopupCloseClick}
             onClose={closeAllPopups}
           />
 
@@ -262,7 +253,6 @@ function App() {
             image={popupImage} 
             title={popupTitle} 
             isOpen={infoTooltip} 
-            onCloseClick={handlePopupCloseClick}
             onClose={closeAllPopups} 
           />
         </div>

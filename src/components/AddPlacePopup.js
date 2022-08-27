@@ -30,6 +30,7 @@ function AddPlacePopup(props) {
   }, [props.isOpen]);
 
   return(
+    <div className="popup__opened" onClick={props.onClose}>
     <PopupWithForm
       isOpen={props.isOpen}
       onCloseClick={props.onCloseClick}
@@ -45,6 +46,7 @@ function AddPlacePopup(props) {
       <input className="popup__input" id="place_link" name="link" type="url" placeholder="Ссылка на картинку" value={link} onChange={handleLinkChange} required/>
       <span className="popup__input-error" id="place_link-error"/>
     </PopupWithForm>
+    </div>
   )
 }
 
